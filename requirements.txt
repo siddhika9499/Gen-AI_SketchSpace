@@ -1,0 +1,29 @@
+# ─── Core ───────────────────────────────────
+flask>=2.3.0
+Pillow>=10.0.0
+numpy>=1.24.0
+torch>=2.0.0
+torchvision>=0.15.0
+
+# ─── Full pipeline (ControlNet + Stable Diffusion) ───
+# Comment these out if running in demo mode / CPU only
+diffusers>=0.21.0
+transformers>=4.30.0
+accelerate>=0.21.0
+xformers>=0.0.21         # optional, CUDA only — comment out if not available
+controlnet-aux>=0.0.6
+safetensors>=0.3.1
+
+# ─── Evaluation ─────────────────────────────
+# CLIP score
+# transformers already listed above (CLIPModel, CLIPProcessor)
+
+# FID score (run separately from CLI)
+# pip install pytorch-fid
+
+# ─── Image processing ───────────────────────
+opencv-python>=4.8.0
+
+# ─── Utilities ──────────────────────────────
+werkzeug>=2.3.0
+requests>=2.31.0

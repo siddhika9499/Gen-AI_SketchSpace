@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SketchSpace — AI Interior Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/main.css"/>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect x="1" y="1" width="26" height="26" rx="4" stroke="currentColor" stroke-width="1"/>
+        <path d="M7 21 L7 13 L14 7 L21 13 L21 21" stroke="currentColor" stroke-width="1" fill="none"/>
+        <rect x="11" y="15" width="6" height="6" stroke="currentColor" stroke-width="1" fill="none"/>
+      </svg>
+      <span class="logo-text">SketchSpace</span>
+    </div>
+    <nav class="nav">
+      <a href="#generate" class="nav-link active">Generate</a>
+      <a href="#results" class="nav-link">Results</a>
+      <a href="#metrics" class="nav-link">Metrics</a>
+      <a href="#about" class="nav-link">About</a>
+    </nav>
+    <div class="mode-badge" id="mode-badge">Loading...</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero" id="generate">
+    <div class="hero-text">
+      <p class="hero-eyebrow">AI-Powered Interior Design</p>
+      <h1 class="hero-title">Transform your<br/><em>sketch into spaces</em></h1>
+      <p class="hero-sub">Upload a room layout sketch. Select an aesthetic. Watch ControlNet + Stable Diffusion render your vision into photorealistic interiors.</p>
+    </div>
+    <div class="hero-decoration">
+      <div class="deco-grid">
+        <div class="deco-cell c1"></div><div class="deco-cell c2"></div>
+        <div class="deco-cell c3"></div><div class="deco-cell c4"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main panel -->
+  <section class="workspace">
+    <div class="panel panel-left">
+
+      <!-- Sketch Upload -->
+      <div class="card">
+        <div class="card-label">01 — Upload sketch</div>
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-inner" id="dropInner">
+            <div class="drop-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect x="6" y="10" width="28" height="22" rx="2" stroke="currentColor" stroke-width="1"/>
+                <path d="M6 28 L14 20 L20 26 L26 18 L34 28" stroke="currentColor" stroke-width="1" fill="none"/>
+                <circle cx="28" cy="16" r="2" fill="currentColor"/>
+              </svg>
+            </div>
+            <p class="drop-title">Drop your sketch here</p>
+            <p class="drop-sub">PNG, JPG, JPEG — hand-drawn or digital</p>
+            <button class="btn-browse" onclick="document.getElementById('fileInput').click()">Browse file</button>
+          </div>
+          <img id="previewImg" class="preview-img" src="" alt="sketch preview"/>
+          <input type="file" id="fileInput" accept="image/*" style="display:none"/>
+        </div>
+        <div class="upload-tip">
+          <span class="tip-icon">✦</span>
+          Works best with room floor plans, perspective sketches, or rough layout drawings
+        </div>
+      </div>
+
+      <!-- Style Selection -->
+      <div class="card">
+        <div class="card-label">02 — Choose aesthetic</div>
+        <div class="style-grid" id="styleGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="card">
+        <div class="card-label">03 — Settings</div>
+
+        <div class="setting-row">
+          <label class="setting-label">Room type</label>
+          <select class="setting-select" id="roomType">
+            <option value="living room">Living room</option>
+            <option value="bedroom">Bedroom</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="dining room">Dining room</option>
+            <option value="home office">Home office</option>
+            <option value="bathroom">Bathroom</option>
+            <option value="studio apartment">Studio apartment</option>
+            <option value="open plan space">Open plan space</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label class="setting-label">Variants <span class="setting-val" id="variantsVal">3</span></label>
+          <input type="range" class="setting-range" id="numVariants" min="1" max="4" value="3"
+            oninput="document.getElementById('variantsVal').textContent=this.value"/>
+        </div>
+
+        <div class="setting-row">
+          <label class="setting-label">Guidance scale <span class="setting-val" id="guidanceVal">7.5</span></label>
+          <input type="range" class="setting-range" id="guidanceScale" min="3" max="15" step="0.5" value="7.5"
+            oninput="document.getElementById('guidanceVal').textContent=this.value"/>
+        </div>
+
+        <div class="setting-row">
+          <label class="setting-label">Inference steps <span class="setting-val" id="stepsVal">20</span></label>
+          <input type="range" class="setting-range" id="inferenceSteps" min="10" max="50" value="20"
+            oninput="document.getElementById('stepsVal').textContent=this.value"/>
+        </div>
+
+        <div class="setting-row">
+          <label class="setting-label">Custom prompt (optional)</label>
+          <textarea class="setting-textarea" id="customPrompt"
+            placeholder="e.g. add large windows, dark oak flooring..."></textarea>
+        </div>
+
+        <button class="btn-generate" id="generateBtn" onclick="generateDesign()">
+          <span class="btn-text">Generate designs</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Right panel: results -->
+    <div class="panel panel-right" id="results">
+
+      <div class="results-placeholder" id="resultsPlaceholder">
+        <div class="placeholder-graphic">
+          <div class="ph-box ph1"></div>
+          <div class="ph-box ph2"></div>
+          <div class="ph-box ph3"></div>
+        </div>
+        <p class="ph-title">Your designs will appear here</p>
+        <p class="ph-sub">Upload a sketch and select a style to get started</p>
+      </div>
+
+      <div class="results-content" id="resultsContent" style="display:none">
+
+        <!-- Loading state -->
+        <div class="loading-state" id="loadingState" style="display:none">
+          <div class="loading-animation">
+            <div class="loading-bar"></div>
+          </div>
+          <p class="loading-text" id="loadingText">Preprocessing sketch...</p>
+          <p class="loading-sub">ControlNet is detecting room structure</p>
+        </div>
+
+        <!-- Sketch + Edge preview -->
+        <div class="sketch-row" id="sketchRow" style="display:none">
+          <div class="sketch-thumb-wrap">
+            <div class="thumb-label">Original sketch</div>
+            <img class="sketch-thumb" id="sketchThumb" src="" alt="sketch"/>
+          </div>
+          <div class="arrow-divider">→</div>
+          <div class="sketch-thumb-wrap">
+            <div class="thumb-label">Edge map (ControlNet input)</div>
+            <img class="sketch-thumb" id="edgeThumb" src="" alt="edge map"/>
+          </div>
+        </div>
+
+        <!-- Output gallery -->
+        <div class="gallery" id="gallery">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Metrics section -->
+        <div class="metrics-section" id="metrics">
+          <div class="card-label" style="margin-bottom:1.2rem">Evaluation metrics</div>
+          <div class="metrics-grid" id="metricsGrid">
+            <!-- Populated by JS -->
+          </div>
+          <div class="metrics-note">
+            <span class="tip-icon">✦</span>
+            CLIP score measures prompt-image semantic alignment. Structural fidelity measures layout preservation from sketch to output.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Tech section -->
+  <section class="about-section" id="about">
+    <div class="about-inner">
+      <div class="about-text">
+        <p class="hero-eyebrow">Technical architecture</p>
+        <h2 class="about-title">How it works</h2>
+        <div class="pipeline-steps">
+          <div class="pipe-step">
+            <div class="pipe-num">01</div>
+            <div class="pipe-info">
+              <h4>Canny edge detection</h4>
+              <p>Your sketch is converted to a binary edge map using OpenCV's Canny algorithm, isolating room structure and furniture outlines.</p>
+            </div>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-num">02</div>
+            <div class="pipe-info">
+              <h4>ControlNet conditioning</h4>
+              <p>The edge map conditions the diffusion process via <code>lllyasviel/sd-controlnet-canny</code>, ensuring generated images preserve spatial layout.</p>
+            </div>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-num">03</div>
+            <div class="pipe-info">
+              <h4>Stable Diffusion v1.5</h4>
+              <p>Style prompts guide denoising over 20–50 steps with UniPC scheduler, producing photorealistic interiors guided by the ControlNet signal.</p>
+            </div>
+          </div>
+          <div class="pipe-step">
+            <div class="pipe-num">04</div>
+            <div class="pipe-info">
+              <h4>CLIP + Fidelity evaluation</h4>
+              <p>Each output is scored for semantic alignment with the style prompt (CLIP score) and structural preservation relative to the original sketch.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-stack-box">
+        <div class="card-label">Tech stack</div>
+        <div class="tech-list">
+          <div class="tech-item"><span class="tech-dot"></span> Python 3.10+</div>
+          <div class="tech-item"><span class="tech-dot"></span> PyTorch + CUDA</div>
+          <div class="tech-item"><span class="tech-dot"></span> HuggingFace Diffusers</div>
+          <div class="tech-item"><span class="tech-dot"></span> ControlNet (canny)</div>
+          <div class="tech-item"><span class="tech-dot"></span> Stable Diffusion v1.5</div>
+          <div class="tech-item"><span class="tech-dot"></span> OpenAI CLIP</div>
+          <div class="tech-item"><span class="tech-dot"></span> OpenCV + PIL</div>
+          <div class="tech-item"><span class="tech-dot"></span> Flask REST API</div>
+          <div class="tech-item"><span class="tech-dot"></span> pytorch-fid (FID)</div>
+        </div>
+        <div class="dataset-note">
+          <div class="card-label" style="margin-top:1.5rem;margin-bottom:.6rem">Dataset</div>
+          <p>Uses pre-trained weights from HuggingFace Model Hub. No custom training required. For evaluation: Interior-Design dataset from Kaggle or LSUN Bedroom.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>SketchSpace — T.Y. BTech CSE (AI & ML) Mini Project &nbsp;|&nbsp; ControlNet + Stable Diffusion</p>
+</footer>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
